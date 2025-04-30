@@ -1,16 +1,11 @@
-use std::env::args;
+#![feature(test)]
+
+use std::{env::args, path::Path};
 
 use image::{GenericImageView, ImageReader, Pixel};
 
-fn main() {
-    let mut args = args();
-
-    args.next();
-
-    let img = ImageReader::open(args.next().expect("expected path to an image"))
-        .unwrap()
-        .decode()
-        .unwrap();
+fn render_image(path: impl AsRef<Path>) {
+    let img = ImageReader::open(path).unwrap().decode().unwrap();
     let img_height = img.height();
 
     for mut y in 0..img_height.div_ceil(2) {
@@ -77,5 +72,31 @@ fn main() {
         }
 
         println!();
+    }
+}
+
+fn main() {
+    let mut args = args();
+
+    args.next();
+
+    render_image(args.next().expect("expected path to an image"));
+}
+
+#[cfg(test)]
+mod tests {
+    extern crate test;
+
+    use super::*;
+    use test::Bencher;
+
+    #[bench]
+    fn small_image(b: &mut Bencher) {
+        b.iter(|| render_image("assets/bench_small.webp"));
+    }
+
+    #[bench]
+    fn large_image(b: &mut Bencher) {
+        b.iter(|| render_image("assets/bench_large.jpeg"));
     }
 }
