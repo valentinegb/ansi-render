@@ -14,15 +14,17 @@ fn main() {
     let img_height = img.height();
 
     for mut y in 0..img_height.div_ceil(2) {
+        const ESCAPE: char = '\x1B';
+        const CONTROL_SEQUENCE_INTRODUCER: char = '[';
+        const SELECT_GRAPHIC_RENDITION: char = 'm';
+        const RESET: &str = "0";
+
         y *= 2;
 
         for x in 0..img.width() {
-            const ESCAPE: char = '\x1B';
-            const CONTROL_SEQUENCE_INTRODUCER: char = '[';
-            const SELECT_GRAPHIC_RENDITION: char = 'm';
             const SET_FOREGROUND_COLOR: &str = "38";
             const SET_BACKGROUND_COLOR: &str = "48";
-            const TWENTY_FOUR_BIT: &str = "02";
+            const TWENTY_FOUR_BIT: &str = "2";
 
             let top_pixel = img.get_pixel(x, y).to_rgb();
             let top_channels = top_pixel.channels();
@@ -48,6 +50,6 @@ fn main() {
             print!("▀");
         }
 
-        println!();
+        println!("{ESCAPE}{CONTROL_SEQUENCE_INTRODUCER}{RESET}{SELECT_GRAPHIC_RENDITION}");
     }
 }
