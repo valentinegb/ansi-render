@@ -20,8 +20,9 @@ fn main() {
             const ESCAPE: char = '\x1B';
             const CONTROL_SEQUENCE_INTRODUCER: char = '[';
             const SELECT_GRAPHIC_RENDITION: char = 'm';
-            const SET_FOREGROUND_COLOR: char = '\x38';
-            const TWENTY_FOUR_BIT: char = '\x02';
+            const SET_FOREGROUND_COLOR: &str = "38";
+            const SET_BACKGROUND_COLOR: &str = "48";
+            const TWENTY_FOUR_BIT: &str = "02";
 
             let top_pixel = img.get_pixel(x, y).to_rgb();
             let top_channels = top_pixel.channels();
@@ -40,7 +41,7 @@ fn main() {
                     (bottom_channels[0], bottom_channels[1], bottom_channels[2]);
 
                 print!(
-                    "{ESCAPE}{CONTROL_SEQUENCE_INTRODUCER}{SET_FOREGROUND_COLOR};{TWENTY_FOUR_BIT};{bottom_r};{bottom_g};{bottom_b}{SELECT_GRAPHIC_RENDITION}",
+                    "{ESCAPE}{CONTROL_SEQUENCE_INTRODUCER}{SET_BACKGROUND_COLOR};{TWENTY_FOUR_BIT};{bottom_r};{bottom_g};{bottom_b}{SELECT_GRAPHIC_RENDITION}",
                 );
             }
 
