@@ -1,12 +1,13 @@
 #![feature(test)]
 
-use std::{env::args, path::Path};
+use std::{env::args, fmt::Write, path::Path};
 
 use image::{GenericImageView, ImageReader, Pixel};
 
 fn render_image(path: impl AsRef<Path>) {
     let img = ImageReader::open(path).unwrap().decode().unwrap();
     let img_height = img.height();
+    let mut buf = String::new();
 
     for mut y in 0..img_height.div_ceil(2) {
         y *= 2;
@@ -45,34 +46,43 @@ fn render_image(path: impl AsRef<Path>) {
                 .is_some_and(|(_bottom_r, _bottom_g, _bottom_b, bottom_a)| bottom_a != 0);
 
             if top_rendered {
-                print!(
+                write!(
+                    &mut buf,
                     "{ESCAPE}{CONTROL_SEQUENCE_INTRODUCER}{SET_FOREGROUND_COLOR};{TWENTY_FOUR_BIT};{top_r};{top_g};{top_b}{SELECT_GRAPHIC_RENDITION}",
-                );
+                ).unwrap();
 
                 if bottom_rendered {
                     let (bottom_r, bottom_g, bottom_b, _bottom_a) = bottom_channels.unwrap();
 
-                    print!(
+                    write!(
+                        &mut buf,
                         "{ESCAPE}{CONTROL_SEQUENCE_INTRODUCER}{SET_BACKGROUND_COLOR};{TWENTY_FOUR_BIT};{bottom_r};{bottom_g};{bottom_b}{SELECT_GRAPHIC_RENDITION}",
-                    );
+                    ).unwrap();
                 }
 
-                print!("▀");
+                write!(&mut buf, "▀").unwrap();
             } else if bottom_rendered {
                 let (bottom_r, bottom_g, bottom_b, _bottom_a) = bottom_channels.unwrap();
 
-                print!(
+                write!(
+                    &mut buf,
                     "{ESCAPE}{CONTROL_SEQUENCE_INTRODUCER}{SET_FOREGROUND_COLOR};{TWENTY_FOUR_BIT};{bottom_r};{bottom_g};{bottom_b}{SELECT_GRAPHIC_RENDITION}▄",
-                );
+                ).unwrap();
             } else {
-                print!(" ");
+                write!(&mut buf, " ").unwrap();
             }
 
-            print!("{ESCAPE}{CONTROL_SEQUENCE_INTRODUCER}{RESET}{SELECT_GRAPHIC_RENDITION}");
+            write!(
+                &mut buf,
+                "{ESCAPE}{CONTROL_SEQUENCE_INTRODUCER}{RESET}{SELECT_GRAPHIC_RENDITION}",
+            )
+            .unwrap();
         }
 
-        println!();
+        writeln!(&mut buf).unwrap();
     }
+
+    print!("{buf}");
 }
 
 fn main() {
